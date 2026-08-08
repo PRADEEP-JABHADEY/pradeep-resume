@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pradeep Jabhadey - Interactive Web Resume</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --chrome-bg: #1e1f22;
+      --tab-active: #2b2d31;
+      --tab-inactive: #1e1f22;
+      --toolbar-bg: #2b2d31;
+      --border-color: #3f4248;
+      --text-main: #f2f3f5;
+      --text-sub: #949ba4;
+      --accent-blue: #5865f2;
+      --accent-blue-hover: #4752c4;
+      --card-bg: #313338;
+      --card-border: #3f4248;
+      --search-bg: #1e1f22;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0f1012;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+      color: var(--text-main);
+    }
+
+    /* Window Frame */
+    .browser-window {
+      width: 100%;
+      max-width: 1150px;
+      height: 92vh;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Top Chrome Bar */
+    .chrome-header {
+      background-color: var(--chrome-bg);
+      padding-top: 8px;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      margin-right: 15px;
+    }
+
+    .control-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .close { background-color: #ff5f56; }
+    .minimize { background-color: #ffbd2e; }
+    .maximize { background-color: #27c93f; }
+
+    .tabs-container {
+      display: flex;
+      align-items: flex-end;
+      flex-grow: 1;
+      height: 36px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      background-color: var(--tab-inactive);
+      padding: 8px 16px;
+      border-radius: 8px 8px 0 0;
+      font-size: 12px;
+      color: var(--text-sub);
+      width: 240px;
+      max-width: 240px;
+      height: 36px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background-color: var(--tab-active);
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .tab-favicon {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .tab-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    .tab-close {
+      font-size: 12px;
+      margin-left: 8px;
+      opacity: 0.6;
+      border-radius: 50%;
+      padding: 2px;
+    }
+
+    .tab-close:hover {
+      background-color: rgba(255,255,255,0.1);
+      opacity: 1;
+    }
+
+    .new-tab-btn {
+      padding: 6px 10px;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Toolbar & Search Bar */
+    .toolbar {
+      background-color: var(--toolbar-bg);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-btns {
+      display: flex;
+      gap: 12px;
+      color: var(--text-sub);
+      font-size: 14px;
+    }
+
+    .nav-btn {
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(255,255,255,0.08);
+      color: var(--text-main);
+    }
+
+    .address-bar-wrapper {
+      flex-grow: 1;
+      position: relative;
+    }
+
+    .address-bar {
+      width: 100%;
+      background-color: var(--search-bg);
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 7px 16px 7px 38px;
+      font-size: 14px;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .address-bar:focus {
+      background-color: #111214;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+
+    .browser-actions {
+      display: flex;
+      gap: 12px;
+      color: var(--text-sub);
+      align-items: center;
+    }
+
+    /* Live Suggestions Popup */
+    .suggestions-popup {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      margin-top: 4px;
+      display: none;
+      z-index: 100;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      border-top: none;
+    }
+
+    .suggestion-item {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-main);
+      transition: background-color 0.15s;
+    }
+
+    .suggestion-item:hover {
+      background-color: rgba(255,255,255,0.05);
+    }
+
+    .suggestion-item i {
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+
+    /* Content Area */
+    .web-content {
+      flex-grow: 1;
+      background-color: #1e1f22;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .content-container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .search-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      cursor: pointer;
+    }
+
+    .logo-text span:nth-child(1) { color: #4285F4; }
+    .logo-text span:nth-child(2) { color: #EA4335; }
+    .logo-text span:nth-child(3) { color: #FBBC05; }
+    .logo-text span:nth-child(4) { color: #4285F4; }
+    .logo-text span:nth-child(5) { color: #34A853; }
+    .logo-text span:nth-child(6) { color: #EA4335; }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      background-color: rgba(255,255,255,0.08);
+      border-color: #555;
+    }
+
+    .chip.active {
+      background-color: rgba(88, 101, 242, 0.2);
+      color: #8ea1ff;
+      border-color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    .search-stats {
+      color: var(--text-sub);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    /* Dynamic Grid Layout */
+    .layout-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+    }
+
+    @media (max-width: 880px) {
+      .layout-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Result Card Styles */
+    .result-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 18px;
+      border: 1px solid var(--card-border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .result-card:hover {
+      border-color: #555;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .result-url {
+      font-size: 12px;
+      color: #8ea1ff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .result-title {
+      font-size: 19px;
+      color: #8ab4f8;
+      text-decoration: none;
+      margin-bottom: 8px;
+      display: inline-block;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .result-title:hover {
+      text-decoration: underline;
+    }
+
+    .result-description {
+      font-size: 14px;
+      color: #dbdee1;
+      line-height: 1.6;
+    }
+
+    /* Interactive Skill Grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .skill-badge {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .skill-badge:hover {
+      background: rgba(88, 101, 242, 0.15);
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .skill-badge i {
+      font-size: 16px;
+      color: #8ea1ff;
+    }
+
+    .skill-badge span {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* Knowledge Panel Side Container */
+    .knowledge-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 0;
+    }
+
+    .kp-avatar-container {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(135deg, #2b2d31 0%, #1e1f22 100%);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .avatar-icon-box {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(88, 101, 242, 0.2);
+      border: 2px solid var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8ea1ff;
+      font-size: 42px;
+    }
+
+    .kp-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .kp-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .kp-subtitle {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .kp-row {
+      display: flex;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .kp-label {
+      font-weight: 600;
+      width: 95px;
+      color: var(--text-sub);
+      flex-shrink: 0;
+    }
+
+    .kp-value {
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .external-link {
+      color: #8ab4f8;
+      text-decoration: none;
+      transition: text-decoration 0.2s;
+    }
+
+    .external-link:hover {
+      text-decoration: underline;
+    }
+
+    .contact-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px;
+      background: var(--accent-blue);
+      color: white;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 18px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .contact-btn:hover {
+      background: var(--accent-blue-hover);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="browser-window">
+    <!-- Chrome Header -->
+    <div class="chrome-header">
+      <div class="top-bar">
+        <div class="window-controls">
+          <span class="control-btn close" title="Close" onclick="resetSearch()"></span>
+          <span class="control-btn minimize" title="Minimize"></span>
+          <span class="control-btn maximize" title="Maximize"></span>
+        </div>
+        <div class="tabs-container">
+          <div class="tab active" id="browser-tab">
+            <div class="tab-favicon">P</div>
+            <div class="tab-title" id="tab-title-text">Pradeep Jabhadey - Resume Search</div>
+            <i class="fa-solid fa-xmark tab-close" onclick="resetSearch()"></i>
+          </div>
+          <div class="new-tab-btn" title="New Tab" onclick="resetSearch()"><i class="fa-solid fa-plus"></i></div>
+        </div>
+      </div>
+
+      <!-- Navigation & Omnibox Toolbar -->
+      <div class="toolbar">
+        <div class="nav-btns">
+          <i class="fa-solid fa-arrow-left nav-btn" title="Back" onclick="resetSearch()"></i>
+          <i class="fa-solid fa-arrow-right nav-btn" title="Forward"></i>
+          <i class="fa-solid fa-rotate-right nav-btn" title="Reload" onclick="executeSearch()"></i>
+        </div>
+        
+        <div class="address-bar-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input 
+            type="text" 
+            class="address-bar" 
+            id="omnibox" 
+            value="pradeep jabhadey resume" 
+            placeholder="Search 'skills', 'education', 'experience', 'certifications', or 'projects'..."
+            autocomplete="off"
+          >
+          <div class="suggestions-popup" id="suggestions">
+            <div class="suggestion-item" onclick="applySearch('skills')">
+              <i class="fa-solid fa-code"></i>
+              <span><b>skills</b> - Content Moderation, AI Operations & Technical Tools</span>
+            </div>
+            <div class="suggestion-item" onclick="applySearch('education')">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span><b>education</b> - B.Tech Computer Science Engineering Degree</span>
+            </div>
+            <div class="suggestion-item" onclick="applySearch('experience')">
+              <i class="fa-solid fa-briefcase"></i>
+              <span><b>experience</b> - Process Associate Role at Genpact</span>
+            </div>
+            <div class="suggestion-item" onclick="applySearch('certifications')">
+              <i class="fa-solid fa-certificate"></i>
+              <span><b>certifications</b> - TCS ION, LinkedIn Learning & AWS Certificates</span>
+            </div>
+            <div class="suggestion-item" onclick="applySearch('projects')">
+              <i class="fa-solid fa-diagram-project"></i>
+              <span><b>projects</b> - Home Automation System using Sinric Pro API</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="browser-actions">
+          <i class="fa-solid fa-puzzle-piece nav-btn" title="Extensions"></i>
+          <i class="fa-solid fa-user-circle nav-btn" title="Profile"></i>
+          <i class="fa-solid fa-ellipsis-vertical nav-btn" title="Menu"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Web Page Area -->
+    <div class="web-content">
+      <div class="content-container">
+        
+        <!-- Search Engine Branding & Chips -->
+        <div class="search-header">
+          <div class="logo-text" onclick="resetSearch()">
+            <span>P</span><span>r</span><span>a</span><span>d</span><span>e</span><span>e</span><span>p</span>
+          </div>
+          <div class="quick-chips">
+            <button class="chip active" id="chip-all" onclick="applySearch('all')"><i class="fa-solid fa-globe"></i> All</button>
+            <button class="chip" id="chip-skills" onclick="applySearch('skills')"><i class="fa-solid fa-code"></i> Skills</button>
+            <button class="chip" id="chip-experience" onclick="applySearch('experience')"><i class="fa-solid fa-briefcase"></i> Experience</button>
+            <button class="chip" id="chip-education" onclick="applySearch('education')"><i class="fa-solid fa-graduation-cap"></i> Education</button>
+            <button class="chip" id="chip-certifications" onclick="applySearch('certifications')"><i class="fa-solid fa-certificate"></i> Certifications</button>
+            <button class="chip" id="chip-projects" onclick="applySearch('projects')"><i class="fa-solid fa-diagram-project"></i> Projects</button>
+          </div>
+        </div>
+
+        <div class="search-stats" id="stats-bar">
+          About 6 results (0.17 seconds) for "<span id="search-query-display">pradeep jabhadey resume</span>"
+        </div>
+
+        <!-- Dynamic Content Grid -->
+        <div class="layout-wrapper">
+          <div class="results-column" id="results-container">
+            
+            <!-- SUMMARY CARD -->
+            <div class="result-card" data-category="about experience capabilities summary profile">
+              <div class="result-url" onclick="applySearch('all')">
+                <i class="fa-solid fa-link"></i> https://pradeepjabhadey.dev/summary
+              </div>
+              <div class="result-title" onclick="applySearch('all')">Pradeep Jabhadey - Profile Summary</div>
+              <div class="result-description">
+                Technology graduate with ~1 year experience in AI Operations & Content Moderation at Genpact, delivering quality outputs in process-driven environments. Possesses strong communication, analytical skills, process compliance, and is comfortable in fast-changing operations as well as rotational shifts.
+              </div>
+            </div>
+
+            <!-- SKILLS CARD -->
+            <div class="result-card" data-category="skills capabilities tools operational">
+              <div class="result-url" onclick="applySearch('skills')">
+                <i class="fa-solid fa-code"></i> https://pradeepjabhadey.dev/skills
+              </div>
+              <div class="result-title" onclick="applySearch('skills')">Technical & Operational Skills Overview</div>
+              <div class="result-description">
+                Click any core capability below to filter related credentials:
+              </div>
+              <div class="skills-grid">
+                <div class="skill-badge" onclick="applySearch('moderation')"><i class="fa-solid fa-shield-halved"></i><span>Content Moderation</span></div>
+                <div class="skill-badge" onclick="applySearch('ai')"><i class="fa-solid fa-robot"></i><span>AI Operations</span></div>
+                <div class="skill-badge" onclick="applySearch('communication')"><i class="fa-solid fa-comments"></i><span>Communication</span></div>
+                <div class="skill-badge" onclick="applySearch('analytical')"><i class="fa-solid fa-brain"></i><span>Analytical Skills</span></div>
+                <div class="skill-badge" onclick="applySearch('compliance')"><i class="fa-solid fa-check-double"></i><span>Process Compliance</span></div>
+                <div class="skill-badge" onclick="applySearch('collaboration')"><i class="fa-solid fa-users"></i><span>Team Collaboration</span></div>
+                <div class="skill-badge" onclick="applySearch('google')"><i class="fa-brands fa-google"></i><span>Google Workspace</span></div>
+                <div class="skill-badge" onclick="applySearch('service')"><i class="fa-solid fa-headset"></i><span>Customer Support</span></div>
+              </div>
+            </div>
+
+            <!-- EXPERIENCE CARD -->
+            <div class="result-card" data-category="experience work history genpact associate moderation">
+              <div class="result-url" onclick="applySearch('experience')">
+                <i class="fa-solid fa-briefcase"></i> https://pradeepjabhadey.dev/experience
+              </div>
+              <div class="result-title" onclick="applySearch('experience')">Work Experience - Genpact</div>
+              <div class="result-description">
+                <p style="margin-bottom: 6px; color: #8ab4f8; font-weight: 500;">Process Associate - Content Moderation / AI Operations</p>
+                <p style="font-size: 13px; color: #949ba4; margin-bottom: 8px;">Genpact | Hyderabad, Telangana, India (November 2024 – October 2025)</p>
+                <ul style="margin-left: 18px; font-size: 13px; color: #dbdee1; line-height: 1.6;">
+                  <li>Moderated high-volume content ensuring quality compliance.</li>
+                  <li>Maintained high productivity and accuracy in fast-paced operations.</li>
+                  <li>Resolved complex workflow and quality issues through team collaboration.</li>
+                  <li>Worked directly with AI-driven operational workflows.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- EDUCATION CARD -->
+            <div class="result-card" data-category="education degree btech college institute">
+              <div class="result-url" onclick="applySearch('education')">
+                <i class="fa-solid fa-graduation-cap"></i> https://pradeepjabhadey.dev/education
+              </div>
+              <div class="result-title" onclick="applySearch('education')">Education & Academic Background</div>
+              <div class="result-description">
+                <p style="margin-bottom: 6px; color: #8ab4f8; font-weight: 500;">B.Tech in Computer Science Engineering (Graduated 2023)</p>
+                <p style="font-size: 13px; color: #949ba4;">Marri Laxman Reddy Institute of Technology and Management, Hyderabad</p>
+              </div>
+            </div>
+
+            <!-- CERTIFICATIONS CARD -->
+            <div class="result-card" data-category="certifications certificates aws tcs linkedin">
+              <div class="result-url" onclick="applySearch('certifications')">
+                <i class="fa-solid fa-certificate"></i> https://pradeepjabhadey.dev/certifications
+              </div>
+              <div class="result-title" onclick="applySearch('certifications')">Professional Certifications</div>
+              <div class="result-description">
+                <ul style="margin-left: 18px; font-size: 13px; color: #dbdee1; line-height: 1.6;">
+                  <li><strong>Cybersecurity Analyst Simulation</strong> — TCS ION</li>
+                  <li><strong>Customer Service Certification</strong> — LinkedIn Learning</li>
+                  <li><strong>Introduction to Generative AI</strong> — AWS</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- PROJECTS CARD -->
+            <div class="result-card" data-category="projects technical iot automation google assistant sinric">
+              <div class="result-url" onclick="applySearch('projects')">
+                <i class="fa-solid fa-diagram-project"></i> https://pradeepjabhadey.dev/projects
+              </div>
+              <div class="result-title" onclick="applySearch('projects')">Technical Projects</div>
+              <div class="result-description">
+                <p style="margin-bottom: 6px; color: #8ab4f8; font-weight: 500;">Home Automation System Using Google Assistant and Sinric Pro API</p>
+                <p style="font-size: 13px; color: #dbdee1;">Developed a functional home automation system integrating Sinric Pro API with Google Assistant for smart voice-controlled device accessibility.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Knowledge Panel Sidebar -->
+          <div class="knowledge-panel">
+            <div class="kp-avatar-container">
+              <div class="avatar-icon-box">
+                <i class="fa-solid fa-user-tie"></i>
+              </div>
+            </div>
+
+            <div class="kp-header">
+              <div class="kp-title">Pradeep Jabhadey</div>
+              <div class="kp-subtitle">Technology Graduate | AI Operations</div>
+            </div>
+
+            <div class="kp-row">
+              <span class="kp-label">Location:</span>
+              <span class="kp-value">Hyderabad, India</span>
+            </div>
+            <div class="kp-row">
+              <span class="kp-label">Phone:</span>
+              <span class="kp-value"><a href="tel:+919515409920" class="external-link">+91 9515409920</a></span>
+            </div>
+            <div class="kp-row">
+              <span class="kp-label">Email:</span>
+              <span class="kp-value"><a href="mailto:pradeepjabhadey21@gmail.com" class="external-link">pradeepjabhadey21@gmail.com</a></span>
+            </div>
+            <div class="kp-row">
+              <span class="kp-label">LinkedIn:</span>
+              <span class="kp-value"><a href="https://linkedin.com/in/pradeep-jabhadey" target="_blank" class="external-link">pradeep-jabhadey</a></span>
+            </div>
+            <div class="kp-row">
+              <span class="kp-label">Languages:</span>
+              <span class="kp-value">English, Telugu, Hindi, Marathi</span>
+            </div>
+            <div class="kp-row">
+              <span class="kp-label">Interests:</span>
+              <span class="kp-value">Motivational Videos, Tech Research</span>
+            </div>
+            
+            <a href="mailto:pradeepjabhadey21@gmail.com" class="contact-btn">
+              <i class="fa-solid fa-envelope"></i> Contact Candidate
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const omnibox = document.getElementById('omnibox');
+    const suggestions = document.getElementById('suggestions');
+    const resultsContainer = document.getElementById('results-container');
+    const cards = resultsContainer.querySelectorAll('.result-card');
+    const searchQueryDisplay = document.getElementById('search-query-display');
+    const tabTitleText = document.getElementById('tab-title-text');
+
+    // Display live suggestions popup
+    omnibox.addEventListener('focus', () => {
+      suggestions.style.display = 'block';
+    });
+
+    // Close suggestions popup on outside click
+    document.addEventListener('click', (e) => {
+      if (!omnibox.contains(e.target) && !suggestions.contains(e.target)) {
+        suggestions.style.display = 'none';
+      }
+    });
+
+    // Dynamic filtering as user types
+    omnibox.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      filterResults(query);
+    });
+
+    // Pressing Enter triggers the search
+    omnibox.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        executeSearch();
+      }
+    });
+
+    function executeSearch() {
+      const query = omnibox.value.toLowerCase().trim();
+      suggestions.style.display = 'none';
+      filterResults(query);
+    }
+
+    function applySearch(term) {
+      if (term === 'all') {
+        omnibox.value = 'pradeep jabhadey resume';
+      } else {
+        omnibox.value = term;
+      }
+      suggestions.style.display = 'none';
+      filterResults(term);
+    }
+
+    function resetSearch() {
+      applySearch('all');
+    }
+
+    function filterResults(query) {
+      const displayTerm = omnibox.value.trim() === '' ? 'pradeep jabhadey resume' : omnibox.value;
+      searchQueryDisplay.textContent = displayTerm;
+      tabTitleText.textContent = displayTerm + ' - Resume Search';
+
+      const chipMap = {
+        'all': 'chip-all',
+        'skills': 'chip-skills',
+        'experience': 'chip-experience',
+        'education': 'chip-education',
+        'certifications': 'chip-certifications',
+        'projects': 'chip-projects'
+      };
+
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+
+      if (chipMap[query]) {
+        document.getElementById(chipMap[query]).classList.add('active');
+      } else if (query === '' || query === 'pradeep jabhadey resume') {
+        document.getElementById('chip-all').classList.add('active');
+      }
+
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const category = card.getAttribute('data-category') || '';
+        const cardText = card.textContent.toLowerCase();
+
+        if (query === 'all' || query === 'pradeep jabhadey resume' || query === '') {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else if (category.includes(query) || cardText.includes(query)) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('stats-bar').innerHTML = 
+        `About ${visibleCount} results (0.17 seconds) for "<span>${displayTerm}</span>"`;
+    }
+  </script>
+</body>
+</html>
